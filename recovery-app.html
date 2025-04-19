@@ -1,0 +1,434 @@
+
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>تطبيق التعافي - النسخة الخفيفة</title>
+  <style>
+    /* CSS CONTENT */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    body {
+      background-color: #f8f9fa;
+      color: #333;
+      direction: rtl;
+      padding: 20px;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .timer {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #5850ec;
+    }
+    
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background-color: #e2e8f0;
+      border-radius: 4px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background-color: #5850ec;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+    
+    .message-box {
+      background-color: #f0f5ff;
+      border-right: 4px solid #5850ec;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+    }
+    
+    .next-milestone {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+    }
+    
+    .milestone-icon {
+      font-size: 24px;
+      margin-left: 15px;
+      color: #805ad5;
+    }
+    
+    .milestone-info {
+      flex: 1;
+    }
+    
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    .badge {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    
+    .badge:active {
+      transform: scale(0.95);
+    }
+    
+    .badge-icon {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    
+    .badge.achieved {
+      background-color: #f0fff4;
+      border: 1px solid #68d391;
+    }
+    
+    .badge.locked {
+      opacity: 0.5;
+    }
+    
+    .button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background-color: #5850ec;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 0;
+      text-align: center;
+    }
+    
+    .button:active {
+      background-color: #4c46e8;
+    }
+    
+    .language-toggle {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    
+    .language-button {
+      padding: 8px 15px;
+      background-color: #f0f0f0;
+      border-radius: 20px;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+    
+    .language-button.active {
+      background-color: #5850ec;
+      color: white;
+    }
+    
+    .settings-section {
+      margin-top: 30px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+      
+      .container {
+        background-color: #1e1e1e;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+      
+      .message-box {
+        background-color: #2d3748;
+      }
+      
+      .next-milestone, .badge {
+        background-color: #2d2d2d;
+      }
+      
+      .badge.achieved {
+        background-color: #1c4532;
+      }
+      
+      .progress-bar {
+        background-color: #2d3748;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>رحلة التعافي</h1>
+    </div>
+    
+    <div class="language-toggle">
+      <div class="language-button active" onclick="switchLanguage('ar')">العربية</div>
+      <div class="language-button" onclick="switchLanguage('en')">English</div>
+    </div>
+    
+    <div class="timer" id="timer">0 يوم، 0 ساعة، 0 دقيقة</div>
+    
+    <div class="message-box" id="message">
+      بدايتك الجديدة هي الخطوة الأولى في رحلة قوية تجاه حياة أفضل.
+    </div>
+    
+    <div class="next-milestone">
+      <div class="milestone-icon">🏆</div>
+      <div class="milestone-info">
+        <h3>المرحلة القادمة</h3>
+        <p>3 أيام</p>
+        <div class="progress-info">
+          <span>التقدم</span>
+          <span id="progress-text">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+    
+    <h2>الإنجازات</h2>
+    <div class="badge-grid">
+      <div class="badge locked">
+        <div class="badge-icon">🥉</div>
+        <div class="badge-label">3 أيام</div>
+      </div>
+      <div class="badge locked">
+        <div class="badge-icon">🥈</div>
+        <div class="badge-label">7 أيام</div>
+      </div>
+      <div class="badge locked">
+        <div class="badge-icon">🥇</div>
+        <div class="badge-label">30 يوم</div>
+      </div>
+      <div class="badge locked">
+        <div class="badge-icon">🌟</div>
+        <div class="badge-label">90 يوم</div>
+      </div>
+      <div class="badge locked">
+        <div class="badge-icon">💎</div>
+        <div class="badge-label">180 يوم</div>
+      </div>
+      <div class="badge locked">
+        <div class="badge-icon">👑</div>
+        <div class="badge-label">365 يوم</div>
+      </div>
+    </div>
+    
+    <div class="settings-section">
+      <button class="button" onclick="openDatePicker()">تعديل تاريخ البداية</button>
+      <button class="button" style="background-color: #e53e3e;" onclick="resetDate()">إعادة تعيين التاريخ</button>
+    </div>
+  </div>
+  
+  <script>
+    const appData = {
+      startDate: new Date(),
+      language: 'ar'
+    };
+
+    const motivationalMessages = {
+      ar: [
+        "كل يوم تمر به هو انتصار جديد يضاف إلى قوتك.",
+        "أنت تصنع تاريخًا جديدًا لنفسك الآن، استمر في البناء.",
+        "التغيير يأتي خطوة بخطوة، وأنت تخطو بثبات.",
+        "قوتك تكمن في استمرارك رغم الصعوبات.",
+        "كل صباح جديد هو فرصة جديدة لتكون أفضل.",
+        "التحديات تصنع منك شخصًا أقوى، وأنت تتجاوزها يومًا بعد يوم.",
+        "بدايتك الجديدة هي الخطوة الأولى في رحلة قوية تجاه حياة أفضل.",
+        "النجاح ليس بعدم السقوط، بل بالنهوض في كل مرة تسقط فيها.",
+        "أنت أقوى مما تعتقد، وتستطيع تحقيق أكثر مما تتخيل.",
+        "استمر في التقدم، فالمستقبل ينتظر نسخة أفضل منك."
+      ],
+      en: [
+        "Each day you pass is a new victory added to your strength.",
+        "You are creating a new history for yourself now, keep building.",
+        "Change comes step by step, and you are moving steadily.",
+        "Your strength lies in your persistence despite difficulties.",
+        "Each new morning is a new opportunity to be better.",
+        "Challenges make you stronger, and you overcome them day by day.",
+        "Your new beginning is the first step in a powerful journey toward a better life.",
+        "Success is not about not falling, but about rising each time you fall.",
+        "You are stronger than you think, and you can achieve more than you imagine.",
+        "Keep moving forward, the future awaits a better version of you."
+      ]
+    };
+
+    function updateTimer() {
+      const now = new Date();
+      const diff = now - appData.startDate;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      let timerText;
+      if (appData.language === 'ar') {
+        timerText = `${days} يوم، ${hours} ساعة، ${minutes} دقيقة`;
+      } else {
+        timerText = `${days} days, ${hours} hours, ${minutes} minutes`;
+      }
+      document.getElementById('timer').textContent = timerText;
+      updateBadges(days);
+      updateNextMilestone(days);
+      const messageIndex = Math.floor(Math.random() * motivationalMessages[appData.language].length);
+      document.getElementById('message').textContent = motivationalMessages[appData.language][messageIndex];
+    }
+
+    function updateBadges(days) {
+      const badges = document.querySelectorAll('.badge');
+      const milestoneDays = [3, 7, 30, 90, 180, 365];
+      for (let i = 0; i < badges.length; i++) {
+        if (days >= milestoneDays[i]) {
+          badges[i].classList.remove('locked');
+          badges[i].classList.add('achieved');
+        } else {
+          badges[i].classList.remove('achieved');
+          badges[i].classList.add('locked');
+        }
+      }
+    }
+
+    function updateNextMilestone(days) {
+      const milestoneDays = [3, 7, 30, 90, 180, 365];
+      let nextMilestone = 365;
+      for (let i = 0; i < milestoneDays.length; i++) {
+        if (days < milestoneDays[i]) {
+          nextMilestone = milestoneDays[i];
+          break;
+        }
+      }
+      const milestoneText = document.querySelector('.milestone-info p');
+      if (appData.language === 'ar') {
+        milestoneText.textContent = days >= 365 ? 'تم تحقيق جميع المراحل!' : `${nextMilestone} أيام`;
+      } else {
+        milestoneText.textContent = days >= 365 ? 'All milestones achieved!' : `${nextMilestone} days`;
+      }
+      let progress = 100;
+      if (days < nextMilestone) {
+        progress = Math.floor((days / nextMilestone) * 100);
+      }
+      document.getElementById('progress-fill').style.width = `${progress}%`;
+      document.getElementById('progress-text').textContent = `${progress}%`;
+    }
+
+    function openDatePicker() {
+      const dateString = prompt(appData.language === 'ar' ? 'أدخل تاريخ البداية (YYYY-MM-DD)' : 'Enter start date (YYYY-MM-DD)', formatDate(appData.startDate));
+      if (dateString) {
+        const newDate = new Date(dateString);
+        if (!isNaN(newDate.getTime())) {
+          appData.startDate = newDate;
+          localStorage.setItem('startDate', newDate.toISOString());
+          updateTimer();
+        } else {
+          alert(appData.language === 'ar' ? 'تاريخ غير صالح' : 'Invalid date');
+        }
+      }
+    }
+
+    function formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function switchLanguage(lang) {
+      appData.language = lang;
+      localStorage.setItem('language', lang);
+      const arButton = document.querySelector('.language-button:first-child');
+      const enButton = document.querySelector('.language-button:last-child');
+      if (lang === 'ar') {
+        document.dir = 'rtl';
+        document.documentElement.lang = 'ar';
+        arButton.classList.add('active');
+        enButton.classList.remove('active');
+        document.querySelector('.header h1').textContent = 'رحلة التعافي';
+        document.querySelector('.milestone-info h3').textContent = 'المرحلة القادمة';
+        document.querySelector('.progress-info span:first-child').textContent = 'التقدم';
+        document.querySelector('h2').textContent = 'الإنجازات';
+        document.querySelector('.button').textContent = 'تعديل تاريخ البداية';
+        document.querySelector('.button:last-child').textContent = 'إعادة تعيين التاريخ';
+      } else {
+        document.dir = 'ltr';
+        document.documentElement.lang = 'en';
+        arButton.classList.remove('active');
+        enButton.classList.add('active');
+        document.querySelector('.header h1').textContent = 'Recovery Journey';
+        document.querySelector('.milestone-info h3').textContent = 'Next Milestone';
+        document.querySelector('.progress-info span:first-child').textContent = 'Progress';
+        document.querySelector('h2').textContent = 'Achievements';
+        document.querySelector('.button').textContent = 'Edit Start Date';
+        document.querySelector('.button:last-child').textContent = 'Reset Date';
+      }
+      updateTimer();
+    }
+
+    function resetDate() {
+      const newDate = new Date();
+      appData.startDate = newDate;
+      localStorage.setItem('startDate', newDate.toISOString());
+      updateTimer();
+      alert(appData.language === 'ar' ? 'تم تعيين تاريخ البداية للوقت الحالي' : 'Start date has been set to current time');
+    }
+
+    function loadData() {
+      const savedDate = localStorage.getItem('startDate');
+      if (savedDate) {
+        appData.startDate = new Date(savedDate);
+      }
+      const savedLanguage = localStorage.getItem('language');
+      if (savedLanguage) {
+        appData.language = savedLanguage;
+        switchLanguage(savedLanguage);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      updateTimer();
+      setInterval(updateTimer, 60000);
+    });
+  </script>
+</body>
+</html>
